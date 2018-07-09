@@ -1,10 +1,18 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="菜鸟"><title>Vue重构CNode社区项目总结 | 齐庆福博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Vue重构CNode社区项目总结</h1><a id="logo" href="/.">齐庆福博客</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/history/"><i class="fa fa-book"> 历史</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Vue重构CNode社区项目总结</h1><div class="post-meta">Jul 9, 2018<span> | </span><span class="category"><a href="/categories/七月/">七月</a></span></div><div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言:"></a>前言:</h2><p>  前几天用Vue全家桶重构了CNode社区, 因为它们提供API数据接口可调用。<br>  之前写的印象笔记是自己mock的一份数据,所有的数据交互都是用过vuex操<br>  作的数据来呈现的。通过村塾本地localstorage,可实现刷新还是呈现最新的数据。</p>
 <h3 id="技术栈"><a href="#技术栈" class="headerlink" title="技术栈:"></a>技术栈:</h3><p>vue + vuex + vue-router + axios + less + echarts</p>
 <h3 id="其中遇到的问题"><a href="#其中遇到的问题" class="headerlink" title="其中遇到的问题"></a>其中遇到的问题</h3><ul>
-<li>通过父组件向子组件传递数据 <code>props</code> 为对象类型的。  在子组件中展示传递过来的数据之后,父组件的数据发生变化,子组件视图没有改变</li>
+<li>通过父组件向子组件传递数据 <code>props</code> 为对象类型的。  在子组件中展示传递过来的数据之后,父组件的数据发生变化,子组件视图没有改变的原因</li>
 </ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    props:[<span class="string">'datalist'</span>],</span><br><span class="line">    data()&#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            data:<span class="keyword">this</span>.datalist</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  直接在组件模板中使用 <code>props</code> 的 <code>datalist</code>数据，就可以实现父组件数据更新,子组件视图发生变化。</p>
+<p><img src="/2018/07/09/Vue重构CNode社区项目总结/2018-07-10-2.png" alt=""></p>
+<p>这个是在父组件向子组件传递数据,<code>name</code>对象,子组件通过 <code>props</code>接收作为自己data中的数据,点击按钮触发 <code>emit</code>通知父组件更新状态。</p>
+<ol>
+<li><p>如果父组件直接通过 <code>this.name.name = &#39;齐庆福&#39;</code>,那么子组件的视图会得到更新。</p>
+</li>
+<li><p>如果在父组件中直接将 <code>this.name</code>的引用指向另外一个对象,那么子组件的视图不会得到更新。</p>
+</li>
+</ol>
+<p><img src="/2018/07/09/Vue重构CNode社区项目总结/2018-07-10-1.png" alt=""></p>
+<p>如果是第二种情况还想让子组件的视图得到更新,那么不要把 <code>props</code>的数据定义在 <code>data</code>中,直接在模板中通过 <code>this.name</code>使用。</p>
 <ul>
 <li>通过 <code>router-link</code>进行路由跳转并且携带参数。 </li>
 </ul>
